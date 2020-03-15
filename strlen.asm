@@ -1,32 +1,6 @@
-;==============================================================================
-; memchr -> index of first occurence of char in str or -1 if not found
-; in: 
-;     rdi - pointer to the string
-;     rcx - string len
-;     rax - char to find
-;
-; out:
-;     rdx - index of occurence
-;==============================================================================
-
 section .text
 		global memchr
 		global strlen
-
-memchr:	
-		repne scasb
-		jz .found	
-
-.not_found:
-		mov rdx, -1d
-		jmp .exit	
-
-.found:
-		sub rdx, rcx
-.exit:
-
-		ret			
-
 
 ;==============================================================================
 ; strlen -> len of 0-terminated string
@@ -39,8 +13,37 @@ memchr:
 
 strlen:
 		mov rcx, 4096d
+		mov rdx, rcx
 		mov rax, 0
 		
 		call memchr
 		
 		ret
+
+;==============================================================================
+; memchr -> index of first occurence of char in str or -1 if not found
+; in: 
+;     rdi - pointer to the string
+;     rcx - string len
+;     rax - char to find
+;
+; out:
+;     rdx - index of occurence
+;==============================================================================
+memchr:	
+		cld
+
+		repne scasb
+		jz .found	
+
+.not_found:
+		mov rdx, 666d
+		jmp .exit	
+
+.found:
+		sub rdx, rcx
+		dec rdx
+.exit:
+
+		ret			
+
