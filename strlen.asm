@@ -1,3 +1,30 @@
+%macro pushaq 0
+    push rax
+    push rcx
+    push rdx
+    push rbx
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+%endmacro
+
+%macro popaq 0
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rbp
+    pop rbx
+    pop rdx
+    pop rcx
+    pop rax
+%endmacro
+
+
 section .text
 		global memchr
 		global strlen
@@ -5,25 +32,32 @@ section .text
 ;==============================================================================
 ; strlen -> len of 0-terminated string
 ; in:
-;     rdi - pointer to the string
+;     rsi - pointer to the string
 ;
 ; out:
 ;     rdx - len
 ;==============================================================================
 
 strlen:
+		push rdi
+		push rsi
+		
 		mov rcx, 4096d
 		mov rdx, rcx
 		mov rax, 0
-		
+
+		mov rdi, rsi
 		call memchr
+		
+		pop rsi
+		pop rdi
 		
 		ret
 
 ;==============================================================================
 ; memchr -> index of first occurence of char in str or -1 if not found
 ; in: 
-;     rdi - pointer to the string
+;     rsi - pointer to the string
 ;     rcx - string len
 ;     rax - char to find
 ;
@@ -37,7 +71,7 @@ memchr:
 		jz .found	
 
 .not_found:
-		mov rdx, 666d
+		mov rdx, -1d
 		jmp .exit	
 
 .found:
