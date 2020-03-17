@@ -26,7 +26,6 @@
 
 
 section .data
-	cur_str db 'hello world', 0 
 
 section .text
 		stdout_f equ 1
@@ -34,23 +33,10 @@ section .text
 		extern strlen
 	
 		global put_str
-		global _start
-
-
-_start:
-		
-		push cur_str
-
-		call put_str
-	
-		mov rdi, 0
-		mov rax, 60d
-		syscall
-
-		ret
 
 ;==============================================================================
-; str in stack
+; put_str -> gets nullterminated str from stack to stdout 
+; 
 ;==============================================================================
 put_str:
 		enter 0, 0
