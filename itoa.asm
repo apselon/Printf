@@ -50,7 +50,7 @@ section .text
 ;==============================================================================
 ; itoa -> 
 ; in:
-;     rdi - num
+;     rax - num
 ;     rsi - base
 ; out:
 ;     rdi - ptr to the string
@@ -61,33 +61,28 @@ itoa:
 		pushaq
 
 		std
-		cmp rax, 10d
+		cmp rsi, 10d
 		je .decimal
 
-		cmp rax, 2d
+		cmp rsi, 2d
 		je .bin
 
-		cmp rax, 8d
+		cmp rsi, 8d
 		je .octal
 
-		;cmp rsi, 16d
+		cmp rsi, 16d
 		jmp .hex
 
 
 .bin:
-
 		set_convsersion 1d, 0x01, 64d, .pow_2_conv
-
-.hex:
-
-		set_convsersion 4d, 0x0f, 16d, .pow_2_conv
-
 .octal:
-
-		set_convsersion 4d, 0x07, 21d, .pow_2_conv
-
+		set_convsersion 3d, 0x07, 21d, .pow_2_conv
+.hex:
+		set_convsersion 4d, 0x0f, 16d, .pow_2_conv
 .decimal:
 		set_convsersion 10d,   0, 20d, .decimal_conv
+
 
 .decimal_conv:
 		dec r10
@@ -96,7 +91,7 @@ itoa:
 		xor rdx, rdx			
 		div r8 
 
-	;saving in result ASCII code of digit 
+	;save ASCII code of the digit in result string
 		mov dl, byte [symbols + rdx]
 		mov [result + r10], dl
 
@@ -105,23 +100,25 @@ itoa:
 
 		jmp .exit
 
+
 .pow_2_conv:
 		dec r10
 	
-	;get current digit from number
+	;geteing current digit from number
 		mov rdx, r9
-		and dl, ax
+		and dl, al
 
-	;save digit in result string
-		mov dl, byte [rdx + symbols]
+	;save ASCII code of the digit in result string
+		mov dl, byte [symbols + rdx]
 		mov [result + r10], dl
 
 	;remove processed bits from number
+		mov rcx, r8
 		shr rax, cl
 
 		cmp r10, 0
-		jne .decimal_conv
-		
+		jne .pow_2_conv		
+
 
 .exit:
 ;todo fix padding
