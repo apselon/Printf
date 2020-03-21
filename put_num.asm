@@ -9,9 +9,11 @@
     push r8
     push r9
     push r10
+	push r11
 %endmacro
 
 %macro popaq 0
+		pop r11
         pop r10
         pop r9
         pop r8
@@ -31,18 +33,17 @@ section .text
 		extern put_str
 
 		global put_num
-		global _start
 
 ;==============================================================================
 ; put_num
 ; in:
 ;    stack - num
 ;    rsi   - base
+;    r11   - padding or 0 if minimal
 ; out:
-; 	 rdi   - num
 ;    num in stdout
 ;==============================================================================
-
+	
 put_num:
 
 		enter 0, 0
@@ -55,7 +56,9 @@ put_num:
 	;writing string
 		push rdi
 		call put_str
+		pop rdi
 
 		popaq
-		leave		
+		leave
 		ret
+

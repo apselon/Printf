@@ -1,22 +1,42 @@
+;==============================================================================
+; itoa 
+; in:
+;     rax - num
+;     rsi - base
+; 	  r11 - padding or 0 to minimal
+; out:
+;     rdi - ptr to the string
+;==============================================================================
+;==============================================================================
+; abs
+; in:  rdi - num
+; out: rdi - absolute value of num
+;==============================================================================
+;==============================================================================
+; set_padding
+; in:
+;     rdi - ptr to the string
+;     r10 - current padding
+;     r11 - wanted padding or 0 if minimal
+; out:
+;     rdi - moved ptr
+;==============================================================================
+
 %macro pushaq 0
-    push rax 
-    push rcx 
-    push rdx 
-    push rbx 
-    push rbp 
-	push rdi
-    push rsi 
-    push r8
-    push r9
-    push r10 
+	    push rax 
+		push rcx 
+    	push rdx 
+	    push rbx 
+	    push rbp 
+	    push rsi 
+	    push r8
+	    push r9
 %endmacro
 
 %macro popaq 0
-    	pop r10 
     	pop r9
 		pop r8
     	pop rsi 
-		pop rdi
     	pop rbp 
     	pop rbx 
     	pop rdx 
@@ -33,27 +53,31 @@
 		mov r8,  %1	
 		mov r9,  %2 
 		mov r10, %3 
+		push r10
 		jmp %4
 
 %endmacro
 
 
 section .data
-		symbols db '0123456789ABCDEF', 0
 		result times 2048 db 0
+		symbols db '0123456789ABCDEF', 0
 
 
 section .text
 		global itoa
 		global abs_val
+		global set_padding
 
 ;==============================================================================
-; itoa -> 
+; itoa 
 ; in:
 ;     rax - num
 ;     rsi - base
+; 	  r11 - padding or 0 to minimal
 ; out:
 ;     rdi - ptr to the string
+;     r10 - num width 
 ;==============================================================================
 
 itoa:
@@ -121,12 +145,57 @@ itoa:
 
 
 .exit:
-;todo fix padding
+
+		pop r10
 		popaq
 		leave
 
 		mov rdi, result
+
+		call set_padding
+		
 		ret
+
+
+
+;==============================================================================
+; set_padding
+; in:
+;     rdi - ptr to the string
+;     r10 - current padding
+;     r11 - wanted padding or 0 if minimal
+; out:
+;     rdi - moved ptr
+;==============================================================================
+
+set_padding:
+		enter 0, 0	
+		pushaq
+
+		cmp r11, 0
+		je .minimal
+
+.fixed:
+		sub r10, r11	
+		add rdi, r10
+		jmp .exit
+
+.minimal:
+		mov rcx, r10
+		cmp byte [rdi], '0'
+		jne .exit
+
+.crop:		
+		inc rdi	
+
+		cmp byte [rdi], '0'
+		loope .crop
+
+.exit:
+		popaq
+		leave
+		ret
+
 
 
 ;==============================================================================
