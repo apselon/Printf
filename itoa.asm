@@ -4,6 +4,7 @@
     push rdx 
     push rbx 
     push rbp 
+	push rdi
     push rsi 
     push r8
     push r9
@@ -15,6 +16,7 @@
     	pop r9
 		pop r8
     	pop rsi 
+		pop rdi
     	pop rbp 
     	pop rbx 
     	pop rdx 
@@ -22,10 +24,15 @@
     	pop rax 
 %endmacro
 
+;==============================================================================
+; r8  - number of bits in one digit
+; r9  - &-flag to extract $(r8) bits from number
+; r10 - max result len
+;==============================================================================
 %macro set_convsersion 4
-		mov r8, %1	
-		mov r9, %2 
-		add rcx, %3 
+		mov r8,  %1	
+		mov r9,  %2 
+		mov r10, %3 
 		jmp %4
 
 %endmacro
@@ -43,8 +50,10 @@ section .text
 ;==============================================================================
 ; itoa -> 
 ; in:
-;    rdi - num
-;    rsi - base
+;     rdi - num
+;     rsi - base
+; out:
+;     rdi - ptr to the string
 ;==============================================================================
 
 itoa:
@@ -52,88 +61,74 @@ itoa:
 		pushaq
 
 		std
-
-		push rdi
-
-		xor rcx, rcx
-
-		cmp rsi, 10d
+		cmp rax, 10d
 		je .decimal
 
-		cmp rsi, 2d
+		cmp rax, 2d
 		je .bin
 
-		cmp rsi, 8d
+		cmp rax, 8d
 		je .octal
 
 		;cmp rsi, 16d
-		je .hex
+		jmp .hex
 
 
 .bin:
-	;	mov r8, 1d	
-	;	mov r9, 0x01
-	;	add rcx, 64d
-	;	jmp .pow_2_conv
 
 		set_convsersion 1d, 0x01, 64d, .pow_2_conv
 
 .hex:
-	;	mov r8, 4d
-	;	mov r9, 0x0f
-	;	add rcx, 16d
-	;	jmp .pow_2_conv
 
 		set_convsersion 4d, 0x0f, 16d, .pow_2_conv
 
 .octal:
-	;	mov r8, 3d
-	;	mov r9, 0x07
-	;	add rcx, 20d
-	;	jmp .pow_2_conv
 
 		set_convsersion 4d, 0x07, 21d, .pow_2_conv
 
 .decimal:
 		set_convsersion 10d,   0, 20d, .decimal_conv
 
-
 .decimal_conv:
+		dec r10
+
 	;saving digit in rdx
 		xor rdx, rdx			
 		div r8 
 
 	;saving in result ASCII code of digit 
 		mov dl, byte [symbols + rdx]
-		mov [result + rcx - 1], dl
+		mov [result + r10], dl
 
-		loop .decimal_conv
+		cmp r10, 0
+		jne .decimal_conv
 
 		jmp .exit
 
 .pow_2_conv:
-	;saving diggit in rdx
-		mov rdx, r9
-		and dl, al
-
-	;saving in result ASCII code of digit 
-		mov dl, byte [symbols + rdx]
-		mov [result + rcx - 1], dl
+		dec r10
 	
-	;removing translated digits
-		mov r10, rcx
-		mov rcx, r8
-		shr rdi, cl
-		mov rcx, r10
+	;get current digit from number
+		mov rdx, r9
+		and dl, ax
 
-		loop .pow_2_conv
+	;save digit in result string
+		mov dl, byte [rdx + symbols]
+		mov [result + r10], dl
+
+	;remove processed bits from number
+		shr rax, cl
+
+		cmp r10, 0
+		jne .decimal_conv
 		
-.exit:
 
+.exit:
+;todo fix padding
 		popaq
 		leave
 
-		push result
+		mov rdi, result
 		ret
 
 
