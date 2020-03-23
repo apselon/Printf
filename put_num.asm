@@ -37,9 +37,9 @@ section .text
 ;==============================================================================
 ; put_num
 ; in:
-;    stack - num
-;    rsi   - base
-;    r11   - padding or 0 if minimal
+;    rax - num
+;    rsi - base
+;    r11 - padding or 0 if minimal
 ; out:
 ;    num in stdout
 ;==============================================================================
@@ -50,13 +50,11 @@ put_num:
 		pushaq
 
 	;converting num to string
-		mov rax, [rbp + 16]
 		call itoa
 
 	;writing string
-		push rdi
+		mov rsi, rdi
 		call put_str
-		pop rdi
 
 		popaq
 		leave
