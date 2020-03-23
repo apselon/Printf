@@ -1,6 +1,41 @@
+%macro pushaq 0
+    	push rax 
+    	push rcx 
+    	push rdx 
+    	push rbx 
+    	push rbp 
+    	push rdi 
+    	push rsi 
+    l	push r8
+    	push r9
+		push r10 
+	    push r11 
+%endmacro
+
+%macro popaq 0
+        pop r11 
+        pop r10 
+        pop r9
+        pop r8
+        pop rsi 
+        pop rdi 
+        pop rbp 
+        pop rbx 
+        pop rdx 
+        pop rcx 
+        pop rax 
+%endmacro
+
 %macro case 2
 		cmp [rsi], %1
 		je %2
+%endmacro
+
+%macro put_num_in_base 2
+		mov rax, [rbp]
+		mov rsi, %1
+		mov r11, %2
+		call put_num
 %endmacro
 
 section .data
@@ -16,7 +51,7 @@ section .text
 ;==============================================================================
 ; newest_trendiest_coolest_printf
 ; in: 
-;     rsi   - specificator string
+;     rax   - specificator string
 ;     stack - data to print
 ;==============================================================================
 
@@ -25,19 +60,19 @@ newest_trendiest_coolest_printf:
 		pushaq
 
 .string_view:
-			cmp [rsi], '%'
-			jne .print_char
+		cmp byte [rax], '%'
+		jne .print_char
 
-			inc rsi
-			jmp .process_spec
+		inc rax
+		jmp .process_spec
 		
 .print_char:
-			push [rsi]
-			call put_char
-			pop [rsi]
+		mov rsi, [rax]
+		call put_char
+
 .continue:
-		inc rsi
-		cmp [rsi], 0
+		inc rax
+		cmp byte [rax], 0
 		jne .string_view
 
 .exit:
@@ -46,23 +81,64 @@ newest_trendiest_coolest_printf:
 		ret
 
 .process_spec:
-		case 'c' .char
-		case 's' .string
-		case 'd' .num_d
-		case 'x' .num_x
-		case 'o' .num_o
-		case 'b' .num_b
-		case '%' .percent
+		cmp byte [rax], 'c'	
+		je .char
+
+		cmp byte [rax], 'd'
+		je .num_d
+
+		cmp byte [rax], 'x'
+		je .num_x
+
+		cmp byte [rax], 'o'
+		je .num_o
+
+		cmp byte [rax], 'b'
+		je .num_b
+
+		cmp byte [rax], 's'
+		je .str
+
+		cmp byte [rax], '%'
+		je .percent
 
 		jmp .continue
 
 .char:
+		mov rsi, [rbp]
 		call put_char
-.str:
-		call put_str
-.num_d:	
-.num_x:
-.num_o:
-.num_b:
-.percent:
+		add rbp, 8
+		
+		jmp .continue
 
+.str:
+		mov rsi, [rbp]
+		call put_str
+		add rbp, 8
+
+		jmp .continue
+
+.num_d:	
+		mov r12, 10d
+		jmp .num
+.num_x:
+		mov r12, 16d
+		jmp .num
+.num_o:
+		mov r12, 8d
+		jmp .num
+.num_b:
+		mov r12, 2d
+		jmp .num
+
+.num:
+		mov rax, [rbp]
+		mov rsi, r12
+		mov r11, 0
+		call put_num
+		add rbp, 8
+
+		jmp .continue
+
+.percent:
+		jmp .continue
