@@ -60,7 +60,7 @@
 
 
 section .data
-		result times 2048 db 0
+		result times 2048d db 0
 		symbols db '0123456789ABCDEF', 0
 
 
@@ -83,8 +83,10 @@ section .text
 itoa:
 		enter 0, 0
 		pushaq
+		cld
+		
+		call clear_buff
 
-		std
 		cmp rsi, 10d
 		je .decimal
 
@@ -95,7 +97,9 @@ itoa:
 		je .octal
 
 		cmp rsi, 16d
-		jmp .hex
+		je .hex
+
+		jmp .exit
 
 
 .bin:
@@ -215,3 +219,23 @@ abs_val:
 		mov rdi, rax
 		popaq
 		ret 
+
+clear_buff:
+
+		push rdi
+		push rax
+		push rcx
+		
+
+		xor rax, rax
+		mov rcx, 100d
+		mov rdi, result
+
+		rep stosw
+
+		pop rcx
+		pop rax
+		pop rdi
+
+		ret
+
