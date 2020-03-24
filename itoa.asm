@@ -204,20 +204,15 @@ set_padding:
 
 ;==============================================================================
 ; abs:
-; in:  rdi - num
-; out: rdi - absolute value of num
+; in:  rax - num
 ;==============================================================================
 
 abs_val:
-		pushaq
-		mov rax, rdi	
 
 		cdq
 		xor rax, rdx
 		sub rax, rdx
 
-		mov rdi, rax
-		popaq
 		ret 
 
 clear_buff:

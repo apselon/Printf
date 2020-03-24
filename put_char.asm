@@ -34,20 +34,21 @@ section .text
 
 ;==============================================================================
 ; put_char.
-; in: stack 
+; in: 
+;    rsi - char to print
 ;==============================================================================
 put_char:
 		enter 0, 0	
 		pushaq
 
 	;save argument from stack
-		mov r8, [rbp + 16]
+		mov r8, rsi 
 		mov byte [cur_char], r8b
 
 	;write char;
 		mov rax, 1d
 		mov rdx, 1d
-		mov rdi, stdout_f 
+		mov rdi, stdout_f
 		mov rsi, cur_char
 		syscall
 

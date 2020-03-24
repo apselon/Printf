@@ -35,21 +35,21 @@ section .text
 		global put_str
 
 ;==============================================================================
-; put_str -> gets nullterminated str from stack to stdout 
-; 
+; put_str 
+; in:
+;    rsi - ptr to the string to print
 ;==============================================================================
 put_str:
 		enter 0, 0
 		pushaq
 			
 		mov rdi, stdout_f
-		mov rsi, [rbp + 16]
 
-	;saving string length in rdx
+	;sace len in rdx
 		call strlen	
-		
-		mov rax, 1d
 
+	;write to stdout
+		mov rax, 1d
 		syscall
 
 		popaq

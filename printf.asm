@@ -6,7 +6,7 @@
     	push rbp 
     	push rdi 
     	push rsi 
-    l	push r8
+    	push r8
     	push r9
 		push r10 
 	    push r11 
@@ -33,7 +33,7 @@ section .text
 		extern put_str
 		extern put_num
 
-		global my_printf
+		global _vprintf
 
 ;==============================================================================
 ; newest_trendiest_coolest_printf
@@ -42,7 +42,7 @@ section .text
 ;     stack - data to print
 ;==============================================================================
 
-my_printf:
+_vprintf:
 		enter 0, 0
 		pushaq
 		
