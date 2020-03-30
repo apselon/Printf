@@ -1,3 +1,16 @@
+%macro printf 1-*
+	%rep %0 - 1
+		%rotate -1
+		push qword %1
+	%endrep
+	
+	%rotate -1
+	mov rax, %1
+	call _vprintf
+
+%endmacro
+
+
 section .data
 		string1 db 'I %s %x %d%%%c%b', 10d, 0
 		string2 db 'love', 0 
@@ -6,13 +19,8 @@ section .text
 		extern _vprintf 
 
 _start:
-		push qword 127d
-		push qword '!'
-		push qword 100d
-		push qword 3802d
-		push string2
-		mov rax, string1 
-		call _vprintf 
+
+		printf string1, string2, 3802d, 100d, '!', 127d
 
 		mov rax, 60d
 		mov rdi, 0
