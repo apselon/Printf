@@ -31,6 +31,7 @@ section .data
 section .text
 		extern itoa
 		extern put_str
+		extern put_char
 
 		global put_num
 
@@ -50,6 +51,17 @@ put_num:
 		pushaq
 
 	;converting num to string
+		cmp rax, 0	
+		jge .positive
+		
+		push rsi
+		mov rsi, '-'
+		call put_char
+		pop rsi
+
+		neg rax
+		
+.positive:
 		call itoa
 
 	;writing string

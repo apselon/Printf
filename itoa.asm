@@ -208,12 +208,13 @@ set_padding:
 ;==============================================================================
 
 abs_val:
-
 		cdq
+
 		xor rax, rdx
 		sub rax, rdx
 
 		ret 
+
 
 clear_buff:
 

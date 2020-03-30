@@ -14,6 +14,7 @@
 section .data
 		string1 db 'I %s %x %d%%%c%b', 10d, 0
 		string2 db 'love', 0 
+
 section .text
 		global _start
 		extern _vprintf 
