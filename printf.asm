@@ -70,28 +70,9 @@ _vprintf:
 		ret
 
 .process_spec:
-		cmp byte [rax], 'c'	
-		je .char
 
-		cmp byte [rax], 'd'
-		je .num_d
-
-		cmp byte [rax], 'x'
-		je .num_x
-
-		cmp byte [rax], 'o'
-		je .num_o
-
-		cmp byte [rax], 'b'
-		je .num_b
-
-		cmp byte [rax], 's'
-		je .str
-
-		cmp byte [rax], '%'
-		je .percent
-
-		jmp .continue
+		movzx r15, byte [rax]
+		jmp qword [.jump_table + r15 * 8 - '%' * 8]
 
 .char:
 		mov rsi, [rbp]
@@ -137,3 +118,18 @@ _vprintf:
 		call put_char
 
 		jmp .continue
+
+
+.jump_table:
+		dq .percent
+		times 60 dq 0
+		dq .num_b
+		dq .char
+		dq .num_d
+		times 10 dq 0
+		dq .num_o
+		times 3 dq 0
+		dq .str
+		times 4 dq 0
+		dq .num_x
+		
